@@ -1,0 +1,71 @@
+version: '3.9'
+
+networks:
+    rss_bot:
+
+volumes:
+  pg_backend_data_volume:
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    restart: always
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pg_backend_data_volume:/var/lib/postgresql/data
+    env_file:
+      - .env
+    networks:
+      - rss_bot
+
+
+  api:
+    build: ../src/app
+    container_name: api
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+    restart: always
+    tty: true
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - rss_bot
+
+
+  monitoring:
+    build: ../src/monitoring
+    container_name: monitoring
+    restart: always
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+      - api
+    networks:
+      - rss_bot
+
+  bot:
+    build: ../src/bot
+    container_name: bot
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+    restart: always
+    ports:
+      - "8002:8002"
+    depends_on:
+      - postgres
+      - api
+      - monitoring
+    networks:
+      - rss_bot
