@@ -15,10 +15,10 @@
 
 - Клонируйте репозиторий
 ```bash
-- git clone git@github.com:AndreyKilanov/RSS_news_bot_testtask.git
+git clone git@github.com:AndreyKilanov/RSS_news_bot_testtask.git
 ```
 
-- Создайте и заполните `.env` по пути `.infra/.env`
+- Создайте и заполните `.env` по пути `./infra`
 
 ```bash
 POSTGRES_USER=user
